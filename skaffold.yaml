@@ -1,0 +1,60 @@
+apiVersion: skaffold/v2beta19
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+    - image: affoio/deeplinks
+      context: py/services/deeplinks
+      docker: {}
+deploy:
+  kubectl:
+    manifests:
+    - "deployments/k8s/*.yaml"
+    - "deployments/k8s/jaeger/*.yaml"
+    - "deployments/k8s/kiali/*.yaml"
+    - "deployments/k8s/prometheus/*.yaml"
+    - "deployments/k8s/istio/*.yaml"
+  helm:
+    releases:
+      - name: otusistio
+        chartPath: deployments/helm/affo
+        imageStrategy:
+          helm: {}
+        setValueTemplates:
+          image.tag: "{{ .DIGEST_HEX }}"
+        wait: true
+      - name: otusistio-primary
+        chartPath: deployments/helm/affo
+        imageStrategy:
+          helm: {}
+        setValueTemplates:
+          image.tag: "{{ .DIGEST_HEX }}"
+        packaged:
+          appVersion: 2.0.0
+        overrides:
+          deeplinks:
+            appVersionOverride: 2.0.0
+        wait: true
+      - name: kiali-operator
+        remoteChart: kiali-operator
+        repo: https://kiali.org/helm-charts
+        namespace: kiali-operator
+        createNamespace: true
+        wait: true
+      - name: jaeger-operator
+        remoteChart: jaeger-operator
+        repo: https://jaegertracing.github.io/helm-charts
+        namespace: jaeger-operator
+        createNamespace: true
+        valuesFiles:
+          - deployments/helm/jaeger/operator-values.yaml
+        wait: true
+      - name: prometheus
+        remoteChart: kube-prometheus-stack
+        repo: https://prometheus-community.github.io/helm-charts
+        namespace: monitoring
+        createNamespace: true
+        valuesFiles:
+          - deployments/helm/prometheus/operator-values.yaml
+        wait: true

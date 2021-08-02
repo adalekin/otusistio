@@ -1,0 +1,6 @@
+dependencies:
+- name: deeplinks
+  repository: ""
+  version: ~1.0.0
+digest: sha256:b8023d277a21bfff425f09be942b3aac64bfb1b436152bf356dd713c0a99810b
+generated: "2021-08-02T03:57:44.125991+03:00"

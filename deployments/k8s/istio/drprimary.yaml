@@ -1,0 +1,10 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: otusistio-primary-deeplinks
+spec:
+  host: otusistio-primary-deeplinks
+  subsets:
+  - name: primary
+    labels:
+      version: "2.0.0"
